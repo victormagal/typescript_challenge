@@ -37,17 +37,11 @@ const App: React.FC = () => {
   const [units, setUnits] = useState<[Unit]>();
   const [users, setUsers] = useState<[User]>();
   const [assets, setAssets] = useState<[Asset]>();
-
-  const [selectedUnit, setSelectedUnit] = useState<string>();
   
   useEffect(() => {
     api.get('/companies').then((response) => {
       setCompanies(response.data);
     });
-
-    // api.get('/assets').then((response) => {
-    //   setAssets(response.data);
-    // });
   }, []);
 
   function getUnits(e: any) {

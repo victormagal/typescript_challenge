@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 
-import './styles/tailwind.css';
+import './styles/base.css';
 import GlobalStyle from './styles/global';
 
 ReactDOM.render(
