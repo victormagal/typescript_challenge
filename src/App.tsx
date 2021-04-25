@@ -37,43 +37,64 @@ const App: React.FC = () => {
   const [units, setUnits] = useState<[Unit]>();
   const [users, setUsers] = useState<[User]>();
   const [assets, setAssets] = useState<[Asset]>();
+
+  const [selectedUnit, setSelectedUnit] = useState<string>();
   
   useEffect(() => {
     api.get('/companies').then((response) => {
       setCompanies(response.data);
     });
 
-    api.get('/units').then((response) => {
-      setUnits(response.data);
-    });
-
-    api.get('/users').then((response) => {
-      setUsers(response.data);
-    });
-
-    api.get('/assets').then((response) => {
-      setAssets(response.data);
-    });
+    // api.get('/assets').then((response) => {
+    //   setAssets(response.data);
+    // });
   }, []);
+
+  function getUnits(e: any) {
+    let headquarter = e.target.value;
+
+    api.get(`/units?companyId=${headquarter}`).then((response) => {
+      const branches = response.data;
+      setUnits(branches);
+    });
+  }
+
+  function getUsersAndAssets(e: any) {
+    let branch = e.target.value;
+
+    api.get(`/users?unitId=${branch}`).then((response) => {
+      const users = response.data;
+      setUsers(users);
+    });
+
+    api.get(`/assets?unitId=${branch}`).then((response) => {
+      const assets = response.data;
+      setAssets(assets);
+    });
+  }
   
   return (
     <>
       <div className="lg:container mx-auto grid grid-cols-12 gap-4">
         <div className="col-span-8">
-          {
-            companies?.map((company) => {
-              return(
-                <h1 key={company.id}>{company.name}</h1>
-              );
-            })
-          }
+          <select onChange={getUnits}>
+            <option>Selecione uma empresa</option>
+            {
+              companies?.map((company) => {
+                return(
+                  <option key={company.id} value={company.id}>{company.name}</option>
+                );
+              })
+            }
+          </select>
         </div>
         <div className="col-span-4">
-          <select>
+          <select onChange={getUsersAndAssets}>
+            <option>Selecione uma unidade</option>
             {
               units?.map((unit) => {
                 return(
-                  <option key={unit.id}>{unit.name}</option>
+                  <option key={unit.id} value={unit.id}>{unit.name}</option>
                 );
               })
             }
@@ -81,36 +102,38 @@ const App: React.FC = () => {
         </div>
       </div>
       <div className="lg:container mx-auto grid grid-cols-12 gap-4">
-        {
-          users?.map((user) => {
-            return(
-              <div key={user.id} className="col-span-12">
-                <p>Nome: {user.name}</p>
-                <p>Email: {user.email}</p>
-              </div>
-            );
-          })
-        }
-      </div>
-      <div className="lg:container mx-auto grid grid-cols-12 gap-4">
-        {
-          assets?.map((asset) => {
-            return(
-              <div key={asset.id} className="col-span-12 flex">
-                <div className="w-3/12">
-                  <img className="object-cover w-full h-48" src={asset.image} alt={asset.name} />
+        <div className="col-span-4">
+          <select>
+            <option>Selecione um usuário</option>
+            {
+              users?.map((user) => {
+                return(
+                  <option key={user.id} value={user.unitId}>{user.name}</option>
+                );
+              })
+            }
+          </select>
+        </div>
+        <div className="col-span-8">
+          {
+            assets?.map((asset) => {
+              return(
+                <div key={asset.id} className="flex">
+                  <div className="w-3/12">
+                    <img className="object-cover w-full h-48" src={asset.image} alt={asset.name} />
+                  </div>
+                  <div className="w-9/12 ml-4">
+                    <p>Sensor: {asset.sensors}</p>
+                    <p>Modelo: {asset.model}</p>
+                    <p>Status: {asset.status}</p>
+                    <p>Score: {asset.healthscore}</p>
+                    <p>Nome: {asset.name}</p>
+                  </div>
                 </div>
-                <div className="w-9/12 ml-10">
-                  <p>Sensor: {asset.sensors}</p>
-                  <p>Modelo: {asset.model}</p>
-                  <p>Status: {asset.status}</p>
-                  <p>Score: {asset.healthscore}</p>
-                  <p>Nome: {asset.name}</p>
-                </div>
-              </div>
-            );
-          })
-        }
+              );
+            })
+          }
+        </div>
       </div>
     </>
   );
